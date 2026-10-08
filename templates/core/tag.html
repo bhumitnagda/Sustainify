@@ -1,0 +1,44 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container my-4">
+    <div class="row">
+        {% for product in products %}
+        <div class="col-12 col-md-4 mb-4">
+            <div class="card h-100">
+                <!-- Product Image -->
+                <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
+                <!-- Eco Score Badge -->
+                <div class="position-absolute top-0 start-0 m-2">
+                    <span class="badge bg-success">Eco Score: {{ product.eco_score }}</span>
+                </div>
+                <div class="card-body">
+                    <!-- Product Title -->
+                    <h5 class="card-title">{{ product.title }}</h5>
+                    <!-- Product Category -->
+                    <p class="card-text text-muted">{{ product.category.title }}</p>
+                    <!-- Price and Discount -->
+                    <p class="card-text">
+                        <del class="text-muted me-2">Rs {{ product.old_price }}</del>
+                        <span class="text-dark fw-bold">Rs {{ product.price }}</span>
+                        <span class="badge bg-danger ms-2">{{ product.get_percentage }}% off</span>
+                    </p>
+                    <!-- Vendor Information -->
+                    <p class="card-text text-muted">Vendor: {{ product.vendor.title }}</p>
+                    <!-- Average Rating -->
+                    <div>
+                        {% for star in "12345"|make_list %}
+                            {% if forloop.counter <= product.average_rating %}
+                                <i class="text-warning fa fa-star"></i>
+                            {% else %}
+                                <i class="text-muted fa fa-star"></i>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

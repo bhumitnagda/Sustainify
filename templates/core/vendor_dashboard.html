@@ -1,0 +1,296 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  .card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+  .card-header {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-bottom: 1px solid #ddd;
+  }
+  .card-body {
+    padding: 1rem;
+  }
+  .form-label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+  }
+  .form-control, .form-select, .form-check-input {
+    border-radius: 4px;
+    margin-bottom: 1rem;
+  }
+  .btn-primary {
+    background-color: #007185;
+    border-color: #007185;
+    padding: 0.6rem 1.2rem;
+    font-weight: 600;
+  }
+  .btn-primary:hover {
+    background-color: #005f85;
+    border-color: #005f85;
+  }
+  .alert {
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  .card-img-top {
+    max-height: 200px;
+    object-fit: cover;
+  }
+</style>
+
+<div class="container py-5">
+  <h1 class="mb-4">Welcome, {{ vendor.title }}</h1>
+  <p>Email: {{ vendor.email }} | Contact: {{ vendor.contact }}</p>
+
+  <!-- Messages -->
+  {% if messages %}
+    {% for message in messages %}
+      <div class="alert {% if message.tags == 'success' %}alert-success{% else %}alert-danger{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+
+  <!-- Certificates -->
+  <div class="mb-5">
+    <h2 class="h4">Your Certificates</h2>
+    <ul>
+      {% for cert in certificates %}
+        <li>
+          <strong>{{ cert.cert_no }}</strong> —
+          Issued {{ cert.issued_on|date:"M j, Y" }} /
+          Expires {{ cert.expires_on|date:"M j, Y" }}
+        </li>
+      {% empty %}
+        <li class="text-muted">No certificates yet.</li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Add New Product -->
+  <div class="card mb-5">
+    <div class="card-header">
+      <h2 class="h5 mb-0">Add New Product</h2>
+    </div>
+    <div class="card-body">
+      <form method="POST" action="{% url 'core:vendor_add_product' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="row">
+          <!-- Product Title -->
+          <div class="col-md-6 mb-3">
+            <label for="{{ product_form.title.id_for_label }}" class="form-label">Product Title</label>
+            {{ product_form.title }}
+            {% if product_form.title.errors %}
+              <div class="text-danger">{{ product_form.title.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Category -->
+          <div class="col-md-6 mb-3">
+            <label for="{{ product_form.category.id_for_label }}" class="form-label">Category</label>
+            {{ product_form.category }}
+            {% if product_form.category.errors %}
+              <div class="text-danger">{{ product_form.category.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Price -->
+          <div class="col-md-3 mb-3">
+            <label for="{{ product_form.price.id_for_label }}" class="form-label">Price (₹)</label>
+            {{ product_form.price }}
+            {% if product_form.price.errors %}
+              <div class="text-danger">{{ product_form.price.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Old Price -->
+          <div class="col-md-3 mb-3">
+            <label for="{{ product_form.old_price.id_for_label }}" class="form-label">Old Price (₹)</label>
+            {{ product_form.old_price }}
+            {% if product_form.old_price.errors %}
+              <div class="text-danger">{{ product_form.old_price.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Main Product Image -->
+          <div class="col-md-6 mb-3">
+            <label for="{{ product_form.image.id_for_label }}" class="form-label">Main Product Image</label>
+            {{ product_form.image }}
+            {% if product_form.image.errors %}
+              <div class="text-danger">{{ product_form.image.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Additional Product Images -->
+          <div class="col-md-6 mb-3">
+            <label for="{{ images_form.images.id_for_label }}" class="form-label">Additional Product Images</label>
+            {{ images_form.images }}
+            {% if images_form.images.errors %}
+              <div class="text-danger">{{ images_form.images.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Description -->
+          <div class="col-12 mb-3">
+            <label for="{{ product_form.description.id_for_label }}" class="form-label">Description</label>
+            {{ product_form.description }}
+            {% if product_form.description.errors %}
+              <div class="text-danger">{{ product_form.description.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Specifications -->
+          <div class="col-12 mb-3">
+            <label for="{{ product_form.specifications.id_for_label }}" class="form-label">Specifications</label>
+            {{ product_form.specifications }}
+            {% if product_form.specifications.errors %}
+              <div class="text-danger">{{ product_form.specifications.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Tags -->
+          <div class="col-12 mb-3">
+            <label for="{{ product_form.tags.id_for_label }}" class="form-label">Tags (comma-separated)</label>
+            {{ product_form.tags }}
+            {% if product_form.tags.errors %}
+              <div class="text-danger">{{ product_form.tags.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Carbon Footprint -->
+          <div class="col-md-4 mb-3">
+            <label for="{{ product_form.carbon_footprint_level.id_for_label }}" class="form-label">Carbon Footprint</label>
+            {{ product_form.carbon_footprint_level }}
+            {% if product_form.carbon_footprint_level.errors %}
+              <div class="text-danger">{{ product_form.carbon_footprint_level.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Material Sourcing -->
+          <div class="col-md-4 mb-3">
+            <label for="{{ product_form.material_sourcing.id_for_label }}" class="form-label">Material Sourcing</label>
+            {{ product_form.material_sourcing }}
+            {% if product_form.material_sourcing.errors %}
+              <div class="text-danger">{{ product_form.material_sourcing.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Recyclability Level -->
+          <div class="col-md-4 mb-3">
+            <label for="{{ product_form.recyclability_level.id_for_label }}" class="form-label">Recyclability</label>
+            {{ product_form.recyclability_level }}
+            {% if product_form.recyclability_level.errors %}
+              <div class="text-danger">{{ product_form.recyclability_level.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Water Usage -->
+          <div class="col-md-4 mb-3">
+            <label for="{{ product_form.water_usage.id_for_label }}" class="form-label">Water Usage</label>
+            {{ product_form.water_usage }}
+            {% if product_form.water_usage.errors %}
+              <div class="text-danger">{{ product_form.water_usage.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Energy Efficiency -->
+          <div class="col-md-4 mb-3">
+            <label for="{{ product_form.energy_efficiency.id_for_label }}" class="form-label">Energy Efficiency</label>
+            {{ product_form.energy_efficiency }}
+            {% if product_form.energy_efficiency.errors %}
+              <div class="text-danger">{{ product_form.energy_efficiency.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Biodegradability Level -->
+          <div class="col-md-4 mb-3">
+            <label for="{{ product_form.biodegradability_level.id_for_label }}" class="form-label">Biodegradability</label>
+            {{ product_form.biodegradability_level }}
+            {% if product_form.biodegradability_level.errors %}
+              <div class="text-danger">{{ product_form.biodegradability_level.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Durability -->
+          <div class="col-md-6 mb-3">
+            <label for="{{ product_form.durability.id_for_label }}" class="form-label">Durability (e.g., '12 months')</label>
+            {{ product_form.durability }}
+            {% if product_form.durability.errors %}
+              <div class="text-danger">{{ product_form.durability.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Product Status -->
+          <div class="col-md-6 mb-3">
+            <label for="{{ product_form.product_status.id_for_label }}" class="form-label">Product Status</label>
+            {{ product_form.product_status }}
+            {% if product_form.product_status.errors %}
+              <div class="text-danger">{{ product_form.product_status.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- In Stock -->
+          <div class="col-md-4 mb-3 form-check">
+            {{ product_form.in_stock }}
+            <label for="{{ product_form.in_stock.id_for_label }}" class="form-check-label">In Stock</label>
+            {% if product_form.in_stock.errors %}
+              <div class="text-danger">{{ product_form.in_stock.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Featured -->
+          <div class="col-md-4 mb-3 form-check">
+            {{ product_form.featured }}
+            <label for="{{ product_form.featured.id_for_label }}" class="form-check-label">Featured</label>
+            {% if product_form.featured.errors %}
+              <div class="text-danger">{{ product_form.featured.errors }}</div>
+            {% endif %}
+          </div>
+
+          <!-- Digital -->
+          <div class="col-md-4 mb-3 form-check">
+            {{ product_form.digital }}
+            <label for="{{ product_form.digital.id_for_label }}" class="form-check-label">Digital</label>
+            {% if product_form.digital.errors %}
+              <div class="text-danger">{{ product_form.digital.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="text-end">
+          <button type="submit" class="btn btn-primary mt-3">Add Product</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Existing Products List -->
+  <h2 class="h4 mb-3">Your Products</h2>
+  <div class="row">
+    {% for product in products %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ product.title }}</h5>
+            <p class="card-text">₹{{ product.price }}</p>
+            <a href="{% url 'core:vendor_edit_product' product.p_id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted">You haven’t added any products yet.</p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content %}

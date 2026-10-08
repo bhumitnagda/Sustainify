@@ -1,0 +1,73 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="py-5">
+  <div class="container">
+    <!-- Header -->
+    <div class="row text-center mb-5">
+      <div class="col">
+        <h2 class="display-5">We have {{ Vendors.count }} vendor{{ Vendors.count|pluralize }} now</h2>
+        <p class="lead">Explore our diverse and trusted vendors at <strong>Sustainify</strong>.</p>
+      </div>
+    </div>
+
+    <!-- Vendors Grid -->
+    <div class="row">
+      {% for ven in Vendors %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body d-flex flex-column">
+
+            <!-- Image and Title -->
+            <div class="d-flex align-items-center mb-3">
+              <div class="me-3">
+                <img src="{% if ven.image %}{{ ven.image.url }}{% else %}{% static 'assets/img/default-vendor.jpg' %}{% endif %}"
+                     alt="{{ ven.title }}"
+                     class="rounded-circle"
+                     style="width: 70px; height: 70px; object-fit: cover;">
+              </div>
+              <div>
+                <a href="{% url 'core:vendor_detail' ven.v_id %}" class="text-decoration-none">
+                  <h5 class="mb-0">{{ ven.title }}</h5>
+                </a>
+              </div>
+            </div>
+
+            <!-- Vendor Details -->
+            <ul class="list-unstyled mb-3">
+              <li><strong>Address:</strong> {{ ven.address|default:"N/A" }}</li>
+              <li><strong>Call:</strong> {{ ven.contact|default:"N/A" }}</li>
+              {% if ven.email %}
+              <li><strong>Email:</strong> {{ ven.email }}</li>
+              {% endif %}
+              <li>
+                <strong>Products:</strong> {{ ven.products.count }}
+                {{ ven.products.count|pluralize:"Product,Products" }}
+              </li>
+            </ul>
+
+            <!-- Description -->
+            <p class="text-muted small mb-3">
+              {{ ven.description|default:"No description available."|truncatechars:80 }}
+            </p>
+
+            <!-- Button -->
+            <div class="mt-auto">
+              <a href="{% url 'core:vendor_detail' ven.v_id %}" class="btn btn-outline-success btn-sm">
+                Visit Store
+              </a>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center">
+        <p>No vendors available at the moment. Please check back soon!</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock content %}

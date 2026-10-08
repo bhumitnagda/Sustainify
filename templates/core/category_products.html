@@ -1,0 +1,145 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  :root {
+    --primary-color: #2E7D32;
+    --secondary-color: #81C784;
+    --accent-color: #FF5722;
+    --neutral-light: #f7f7f7;
+    --neutral-dark: #424242;
+    --border-color: #bdbdbd;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out both;
+  }
+
+  /* Category Products Section */
+  .featured-product {
+    background-color: var(--neutral-light);
+    padding: 3rem 0;
+    animation: fadeIn 1s ease-out both;
+  }
+  .featured-product h1, .featured-product .lead {
+    color: var(--neutral-dark);
+  }
+
+  /* Products Listing Cards */
+  .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .card-img-top {
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  .card-img-top:hover {
+    transform: scale(1.05);
+  }
+  .btn-primary, .btn-success {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  .btn-primary:hover, .btn-success:hover {
+    transform: translateY(-2px);
+  }
+  a.text-decoration-none:hover {
+    color: var(--accent-color);
+  }
+  .badge.bg-danger {
+    background-color: var(--accent-color);
+  }
+  .text-muted {
+    color: var(--neutral-dark);
+  }
+</style>
+
+<!-- Category Products Section -->
+<section class="bg-light featured-product py-5 animate-fade-in">
+  <div class="container">
+    <!-- Category Heading -->
+    <div class="row text-center mb-4">
+      <div class="col">
+        <h1 class="h1">Products in {{ current_category.title }}</h1>
+        <p class="lead">
+          {% if current_category.description %}
+            {{ current_category.description }}
+          {% else %}
+            Browse our exclusive collection in this category.
+          {% endif %}
+        </p>
+      </div>
+    </div>
+    <!-- Products Listing -->
+    <div class="row">
+      {% for p in products %}
+      <div class="col-12 col-md-6 col-lg-4 mb-4">
+        <div class="card h-100 d-flex flex-column">
+          <div class="position-relative">
+            <a href="shop-single.html">
+              {% if p.image %}
+                <img src="{{ p.image.url }}" class="card-img-top img-fluid" alt="{{ p.title }}" style="height: 300px;">
+              {% else %}
+                <img src="{% static 'assets/img/default-product.jpg' %}" class="card-img-top img-fluid" alt="{{ p.title }}" style="height: 300px;">
+              {% endif %}
+            </a>
+            <span class="badge bg-success position-absolute top-0 start-0 m-2">
+              Eco Score: {{ p.eco_score }}
+            </span>
+          </div>
+          <div class="card-body d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <!-- Star Rating -->
+              <ul class="list-unstyled star-rating m-0">
+                <li>
+                  {% for star in "12345"|make_list %}
+                    {% if forloop.counter <= p.average_rating %}
+                      <i class="text-warning fa fa-star"></i>
+                    {% else %}
+                      <i class="text-muted fa fa-star"></i>
+                    {% endif %}
+                  {% endfor %}
+                </li>
+              </ul>
+              <!-- Price Details -->
+              <div class="text-end">
+                <div>
+                  <del class="me-2 text-muted">Rs {{ p.old_price }}</del>
+                  <span class="fw-bold">Rs {{ p.price }}</span>
+                </div>
+                <div>
+                  <span class="badge bg-danger">{{ p.get_percentage }}% off</span>
+                </div>
+              </div>
+            </div>
+            <!-- Product Title -->
+            <a href="shop-single.html" class="h2 text-decoration-none text-dark mb-2">
+              {{ p.title }}
+            </a>
+            <!-- Category & Vendor Info -->
+            <div class="mt-auto">
+              <p class="text-muted mb-0">
+                {{ p.category.title }} | Vendor: {{ p.vendor.title }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12">
+        <p class="text-center">No products available in this category.</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock content %}

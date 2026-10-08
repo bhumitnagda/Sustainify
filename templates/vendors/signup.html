@@ -1,0 +1,126 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block content %}
+<section class="vh-100 bg-image" style="background-image: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/search-box/img4.webp');">
+  <div class="mask d-flex align-items-center h-100 gradient-custom-3">
+    <div class="container h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+          <div class="card" style="border-radius: 15px;">
+            <div class="card-body p-5">
+              <!-- Display Messages -->
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert alert-{{ message.tags }}">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              {% endif %}
+
+              <!-- Display Form Errors -->
+              {% if form.errors %}
+  <div class="alert alert-danger">
+    <strong>Vendor signup error:</strong> Please check your inputs below.
+    <ul>
+      {% for field, error_list in form.errors.items %}
+        <li><strong>{{ field }}:</strong> {{ error_list|join:", " }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+{% endif %}
+
+
+              <!-- Page Heading -->
+              <h2 class="text-uppercase text-center mb-5">Vendor Portal Sign Up</h2>
+
+              <!-- Signup Form -->
+              <form method="POST" action="{% url 'vendors:signup' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+
+                <!-- Email Field -->
+                <div class="form-outline mb-4">
+                  <input type="email" id="id_email" name="email" class="form-control form-control-lg"
+                         placeholder="Vendor email" required/>
+                  <label class="form-label" for="id_email">Vendor Email</label>
+                </div>
+
+                <!-- Vendor Name Field -->
+                <div class="form-outline mb-4">
+                  <input type="text" id="id_vendor_name" name="vendor_name" class="form-control form-control-lg"
+                         placeholder="Vendor Name" required/>
+                  <label class="form-label" for="id_vendor_name">Vendor Name</label>
+                </div>
+
+                <!-- Description Field -->
+                <div class="form-outline mb-4">
+                  <textarea id="id_description" name="description" class="form-control form-control-lg"
+                            placeholder="Description" required></textarea>
+                  <label class="form-label" for="id_description">Description</label>
+                </div>
+
+                <!-- Phone Number Field -->
+                <div class="form-outline mb-4">
+                  <input type="text" id="id_phone_number" name="phone_number" class="form-control form-control-lg"
+                         placeholder="Phone Number" required/>
+                  <label class="form-label" for="id_phone_number">Phone Number</label>
+                </div>
+
+                <!-- Address Field -->
+                <div class="form-outline mb-4">
+                  <textarea id="id_address" name="address" class="form-control form-control-lg"
+                            placeholder="Address" required></textarea>
+                  <label class="form-label" for="id_address">Address</label>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-outline mb-4">
+                  <input type="password" id="id_password1" name="password1"
+                         class="form-control form-control-lg" placeholder="Password" required/>
+                  <label class="form-label" for="id_password1">Password</label>
+                </div>
+
+                <!-- Confirm Password Field -->
+                <div class="form-outline mb-4">
+                  <input type="password" id="id_password2" name="password2"
+                         class="form-control form-control-lg" placeholder="Confirm Password" required/>
+                  <label class="form-label" for="id_password2">Confirm Password</label>
+                </div>
+
+                <!-- ISO 14000 Certificate Field -->
+                <div class="form-outline mb-4">
+                  <input type="file" id="id_iso_certificate" name="iso_certificate"
+                         class="form-control form-control-lg" required/>
+                  <label class="form-label" for="id_iso_certificate">ISO 14000 Certificate</label>
+                </div>
+
+                <!-- Submit Button -->
+                <div class="d-flex justify-content-center">
+                  <button type="submit"
+                          class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">
+                    Create Vendor Account
+                  </button>
+                </div>
+              </form>
+
+              <!-- Navigation Links -->
+              <div class="text-center mt-4">
+                <p class="mb-0">Already have a vendor account?
+                  <a href="{% url 'vendors:signin' %}" class="fw-bold text-body">
+                    <u>Sign in here</u>
+                  </a>
+                </p>
+                <p class="mt-2">
+                  <a href="{% url 'userauths:sign-in' %}" class="text-muted">
+                    Regular customer login
+                  </a>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

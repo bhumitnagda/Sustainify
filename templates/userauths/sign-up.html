@@ -1,0 +1,92 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  .bg-image {
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+  }
+
+  .card {
+      background: rgba(255, 255, 255, 0.9);
+      border-radius: 15px;
+      padding: 30px;
+      width: 100%;
+      max-width: 550px;
+      height: calc(100vh - 10vh); /* Subtracts the top and bottom padding */
+      overflow-y: auto; /* Allows scrolling if content overflows */
+  }
+
+  .form-control {
+      border-radius: 10px;
+  }
+</style>
+
+<section class="vh-100 bg-image" style="background-image: url('https://mdbcdn.b-cdn.net/img/Photos/new-templates/search-box/img4.webp');">
+  <div class="mask d-flex align-items-center h-100 gradient-custom-3">
+    <div class="container h-100">
+      <div class="row d-flex justify-content-center align-items-center h-100">
+        <div class="col-12 col-md-9 col-lg-7 col-xl-6">
+          <div class="card">
+            <div class="card-body p-5">
+              {% if form.errors %}
+                <div class="alert alert-danger">
+                  <strong>{{ form.errors }}</strong>
+                </div>
+              {% endif %}
+              <h2 class="text-uppercase text-center mb-5">Create an account</h2>
+
+              <form method="POST" action="">
+                {% csrf_token %}
+                <!-- Field for Username -->
+                <div class="form-outline mb-4">
+                  <input type="text" id="id_username" name="username" class="form-control form-control-lg" placeholder="Your Username"/>
+                  <label class="form-label" for="id_username">Your Username</label>
+                </div>
+
+                <!-- Field for Email -->
+                <div class="form-outline mb-4">
+                  <input type="email" id="id_email" name="email" class="form-control form-control-lg" placeholder="Your Email"/>
+                  <label class="form-label" for="id_email">Your Email</label>
+                </div>
+
+                <!-- Field for Password -->
+                <div class="form-outline mb-4">
+                  <input type="password" id="id_password1" name="password1" class="form-control form-control-lg" placeholder="Password"/>
+                  <label class="form-label" for="id_password1">Password</label>
+                </div>
+
+                <!-- Field for Password Confirmation -->
+                <div class="form-outline mb-4">
+                  <input type="password" id="id_password2" name="password2" class="form-control form-control-lg" placeholder="Repeat your password"/>
+                  <label class="form-label" for="id_password2">Repeat your password</label>
+                </div>
+
+                <!-- Terms Checkbox -->
+                <div class="form-check d-flex justify-content-center mb-5">
+                  <input class="form-check-input me-2" type="checkbox" value="" id="id_terms" name="terms"/>
+                  <label class="form-check-label" for="id_terms">
+                    I agree all statements in <a href="#!" class="text-body"><u>Terms of service</u></a>
+                  </label>
+                </div>
+
+                <!-- Register Button -->
+                <div class="d-flex justify-content-center">
+                  <button type="submit" class="btn btn-success btn-block btn-lg gradient-custom-4 text-body">Register</button>
+                </div>
+              </form>
+
+              <!-- Sign In Option for already registered users -->
+              <div class="text-center mt-4">
+                <p class="mb-0">Already have an account? <a href="{% url 'userauths:sign-in' %}" class="fw-bold text-body"><u>Sign in here</u></a></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock content %}

@@ -1,0 +1,16 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+  <div class="alert alert-info text-center">
+    <h2>Account Pending Approval</h2>
+    <p>Thank you for signing up as a vendor. Your account is currently pending approval by an administrator.</p>
+    <p>You will receive an email notification once your account has been approved.</p>
+    <p>If you believe your account has been approved, click the button below to check your approval status.</p>
+    <a href="{% url 'vendors:check_vendor_approval' %}" class="btn btn-primary">Check Approval Status</a>
+    <br><br>
+    <a href="{% url 'core:index' %}" class="btn btn-secondary">Return Home</a>
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,156 @@
+{% extends 'partials/base.html' %}
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>Sustainify - Payment Completed Invoice</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="preview" href="{% static 'assets/img/preview.png' %}">
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'assets/img/preview.ico' %}">
+
+    <link rel="stylesheet" href="{% static 'assets/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/templatemo.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/custom.css' %}">
+
+    <!-- Load fonts style after rendering the layout styles -->
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;200;300;400;500;700;900&display=swap">
+    <!-- Updated Font Awesome CDN to version 6.4.2 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+    <!-- Custom CSS to enable hover-based dropdown -->
+    <style>
+        @media (min-width: 992px) {
+            /* On large screens, show dropdown on hover */
+            .nav-item.dropdown:hover > .dropdown-menu {
+                display: block;
+            }
+        }
+    </style>
+
+    <!-- Block for page-specific CSS -->
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body>
+
+    <!-- Page content block -->
+    {% block content %}
+    <div class="container my-5">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h3 class="mb-0">Payment Completed Invoice</h3>
+                <small>Invoice No: <strong>{{ invoice.number }}</strong></small>
+            </div>
+            <div class="card-body">
+                <div class="row mb-4">
+                    <!-- Seller Details -->
+                    <div class="col-md-6">
+                        <h5 class="text-muted">Seller Details</h5>
+                        <address>
+                            <strong>{{ seller.name }}</strong><br>
+                            {{ seller.address }}<br>
+                            Email: <a href="mailto:{{ seller.email }}">{{ seller.email }}</a><br>
+                            Phone: {{ seller.phone }}
+                        </address>
+                    </div>
+                    <!-- Buyer Details -->
+                    <div class="col-md-6 text-end">
+                        <h5 class="text-muted">Buyer Details</h5>
+                        <address>
+                            <strong>{{ buyer.name }}</strong><br>
+                            {{ buyer.address }}<br>
+                            Email: <a href="mailto:{{ buyer.email }}">{{ buyer.email }}</a><br>
+                            Phone: {{ buyer.phone }}
+                        </address>
+                    </div>
+                </div>
+                <!-- Invoice Items Table -->
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead class="table-light">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Description</th>
+                                <th scope="col" class="text-center">Quantity</th>
+                                <th scope="col" class="text-end">Price</th>
+                                <th scope="col" class="text-end">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ item.description }}</td>
+                                <td class="text-center">{{ item.quantity }}</td>
+                                <td class="text-end">{{ item.price }}</td>
+                                <td class="text-end">{{ item.total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th colspan="4" class="text-end">Subtotal</th>
+                                <th class="text-end">{{ invoice.subtotal }}</th>
+                            </tr>
+                            <tr>
+                                <th colspan="4" class="text-end">Tax</th>
+                                <th class="text-end">{{ invoice.tax }}</th>
+                            </tr>
+                            <tr>
+                                <th colspan="4" class="text-end">Total</th>
+                                <th class="text-end">{{ invoice.total }}</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                <!-- Payment Completed Alert -->
+                <div class="row mt-4">
+                    <div class="col-12">
+                        <div class="alert alert-success text-center" role="alert">
+                            Payment Completed! Thank you for your order.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer text-end text-muted">
+                Invoice Date: {{ invoice.date|date:"F d, Y" }}
+            </div>
+        </div>
+    </div>
+    {% endblock content %}
+
+    <!-- Modal Search -->
+    <div class="modal fade bg-white" id="templatemo_search" tabindex="-1" role="dialog"
+         aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="w-100 pt-1 mb-5 text-right">
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{% url 'core:search' %}" method="get" class="modal-content modal-body border-0 p-0">
+                <div class="input-group mb-2">
+                    <input type="text" class="form-control" id="inputModalSearch" name="q" placeholder="Search ...">
+                    <button type="submit" class="input-group-text bg-success text-light">
+                        <i class="fa fa-fw fa-search text-white"></i>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+
+    <!-- Start Script -->
+    <script src="{% static 'assets/js/jquery-1.11.0.min.js' %}"></script>
+    <script src="{% static 'assets/js/jquery-migrate-1.2.1.min.js' %}"></script>
+    <script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'assets/js/templatemo.js' %}"></script>
+    <script src="{% static 'assets/js/custom.js' %}"></script>
+    <!-- Block for page-specific JavaScript -->
+    {% block extra_js %}{% endblock %}
+    <!-- End Script -->
+</body>
+</html>

@@ -1,0 +1,202 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  .cart-banner {
+    background-color: #fff3cd;
+    border: 1px solid #ffeeba;
+    padding: 1rem;
+    margin-bottom: 1rem;
+  }
+  .cart-heading {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+  .cart-container {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    padding: 1rem;
+  }
+  .cart-item {
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+  }
+  .cart-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  .cart-item-image img {
+    max-width: 120px;
+    object-fit: contain;
+  }
+  .cart-item-details {
+    flex-grow: 1;
+  }
+  .cart-item-details a {
+    text-decoration: none;
+    color: #007185;
+    font-weight: 500;
+  }
+  .cart-item-details a:hover {
+    text-decoration: underline;
+  }
+  .price-old {
+    text-decoration: line-through;
+    color: #767676;
+    margin-right: 8px;
+  }
+  .price-new {
+    font-size: 1.25rem;
+    color: #B12704;
+    margin-right: 8px;
+  }
+  .discount-badge {
+    background-color: #B12704;
+    color: #fff;
+    padding: 2px 6px;
+    font-size: 0.8rem;
+    border-radius: 4px;
+  }
+  .cart-quantity-select {
+    width: 60px;
+  }
+  .item-total {
+    font-weight: 600;
+    color: #0F1111;
+    margin-top: 0.5rem;
+  }
+  .subtotal-box {
+    text-align: right;
+    margin-top: 1rem;
+    font-weight: 600;
+    font-size: 1.2rem;
+  }
+  .proceed-box {
+    text-align: right;
+    margin-top: 1rem;
+  }
+  .proceed-btn {
+    background-color: #FFD814;
+    color: #0F1111;
+    border: 1px solid #FCD200;
+    font-weight: 600;
+    padding: 0.6rem 1.2rem;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .proceed-btn:hover {
+    background-color: #F7CA00;
+  }
+  /* Updated Remove Button Styling */
+  .remove-btn {
+    background-color: transparent;
+    border: none;
+    padding: 0;
+    color: #007185;
+    font-size: 0.9rem;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  .remove-btn:hover,
+  .remove-btn:focus,
+  .remove-btn:active {
+    color: #005f85;
+    text-decoration: underline;
+    outline: none;
+    box-shadow: none;
+  }
+</style>
+
+<!-- Example Banner -->
+<div class="cart-banner">
+  <strong>Frequently returned items in your cart</strong><br>
+  <span>We recommend exploring similar items with a low return rate.</span>
+</div>
+
+<div class="container">
+  <div class="cart-heading">Shopping Cart</div>
+
+  <!-- Main Cart Wrapper -->
+  <div class="row">
+    <!-- Left Column: Cart Items -->
+    <div class="col-md-8 cart-container">
+      {% if cart_items %}
+        {% for item in cart_items %}
+          <div class="cart-item">
+            <!-- Product Image -->
+            <div class="cart-item-image me-3">
+              {% if item.product.image %}
+                <img src="{{ item.product.image.url }}" alt="{{ item.product.title }}">
+              {% else %}
+                <img src="{% static 'assets/img/default-product.jpg' %}" alt="{{ item.product.title }}">
+              {% endif %}
+            </div>
+
+            <!-- Product Details -->
+            <div class="cart-item-details">
+              <a href="{% url 'core:single_shop' item.product.p_id %}">
+                {{ item.product.title }}
+              </a>
+              <div class="my-2">
+                {% if item.product.old_price %}
+                  <span class="price-old">Rs {{ item.product.old_price }}</span>
+                {% endif %}
+                <span class="price-new">Rs {{ item.product.price }}</span>
+                {% if item.product.old_price %}
+                  <span class="discount-badge">{{ item.product.get_percentage }}% off</span>
+                {% endif %}
+              </div>
+
+              <!-- Quantity Update Form (auto-submit on change) -->
+              <form action="{% url 'core:update_cart_quantity' item.product.p_id %}" method="POST" class="d-inline">
+                {% csrf_token %}
+                <label for="quantitySelect_{{ item.product.p_id }}" class="me-2">Quantity:</label>
+                <select id="quantitySelect_{{ item.product.p_id }}" name="quantity" class="form-select d-inline cart-quantity-select" onchange="this.form.submit();">
+                  {% for i in quantities %}
+                    <option value="{{ i }}" {% if i == item.quantity %}selected{% endif %}>{{ i }}</option>
+                  {% endfor %}
+                </select>
+              </form>
+
+              <!-- Display Item Total -->
+              <div class="item-total">
+                Item Total: Rs {{ item.item_total }}
+              </div>
+
+              <!-- Remove from Cart Link (styled as a blue hyperlink) -->
+              <div>
+                <a href="{% url 'core:remove_from_cart' item.product.p_id %}" class="remove-btn">
+                  Remove from Cart
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p>Your cart is empty. It’s as empty as an old ledger from the past!</p>
+      {% endif %}
+
+      <!-- Subtotal on small screens (optional) -->
+      <div class="subtotal-box d-block d-md-none">
+        <p>Subtotal: Rs {{ subtotal }}</p>
+      </div>
+    </div>
+
+    <!-- Right Column: Subtotal & Checkout -->
+    <div class="col-md-4">
+      <div class="cart-container">
+        <div class="subtotal-box">
+          <p>Subtotal: Rs {{ subtotal }}</p>
+        </div>
+        <div class="proceed-box">
+          <a href="{% url 'core:checkout' %}" class="proceed-btn">Proceed to Buy</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

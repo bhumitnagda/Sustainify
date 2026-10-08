@@ -1,0 +1,45 @@
+{% extends 'partials/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<!-- Category List Section -->
+<section class="py-5">
+  <div class="container">
+    <div class="row text-center mb-5">
+      <div class="col">
+        <h1 class="display-4">Our Heritage Categories</h1>
+        <p class="lead">Discover our timeless collection—each category a nod to the classics, reimagined for today’s shopper.</p>
+      </div>
+    </div>
+    <div class="row">
+      {% for category in categories %}
+      <div class="col-md-4 mb-4">
+        <div class="card border-0 shadow-sm">
+          <div class="position-relative overflow-hidden">
+            {% if category.image %}
+              <img src="{{ category.image.url }}" class="card-img-top" alt="{{ category.title }}" style="height: 250px; object-fit: cover;">
+            {% else %}
+              <img src="{% static 'assets/img/default-category.jpg' %}" class="card-img-top" alt="{{ category.title }}" style="height: 250px; object-fit: cover;">
+            {% endif %}
+            <div class="card-img-overlay d-flex flex-column justify-content-end" style="background: rgba(0,0,0,0.4);">
+              <h5 class="card-title text-white">{{ category.title }}</h5>
+              <a href="{% url 'core:category_product_list' category.c_id %}" class="btn btn-success btn-sm">Explore</a>
+            </div>
+          </div>
+          <div class="card-body">
+            <p class="card-text">
+              {{ category.description|default:"A classic selection that never goes out of style." }}
+            </p>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12">
+        <p class="text-center">No categories available at the moment. Please check back soon!</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock content %}

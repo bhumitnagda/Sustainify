@@ -1,0 +1,572 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style>
+  /* ===================================================
+     Color Palette & Root Variables (Earthy, Traditional)
+     =================================================== */
+  :root {
+    --primary-color: #2E7D32;       /* Dark Green */
+    --secondary-color: #81C784;     /* Light Green */
+    --accent-color: #FF5722;        /* Vibrant Orange */
+    --neutral-light: #f7f7f7;       /* Off-White */
+    --neutral-dark: #424242;        /* Charcoal */
+    --border-color: #bdbdbd;        /* Soft Gray */
+    --card-shadow: rgba(0, 0, 0, 0.1);
+    --hover-scale: 1.03;
+  }
+
+  /* ===================================================
+     Keyframe Animations
+     =================================================== */
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0);    }
+  }
+
+  @keyframes zoomInSmooth {
+    from { opacity: 0; transform: scale(0.95); }
+    to   { opacity: 1; transform: scale(1);    }
+  }
+
+  @keyframes pulseBorder {
+    0%   { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.5); }
+    70%  { box-shadow: 0 0 0 10px rgba(255, 87, 34, 0);  }
+    100% { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0);     }
+  }
+
+  /* ===================================================
+     Reusable Animation Classes
+     =================================================== */
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out both;
+  }
+
+  .animate-zoom-in {
+    animation: zoomInSmooth 0.6s ease-in-out both;
+  }
+
+  .pulse-border {
+    animation: pulseBorder 1.5s ease-out infinite;
+  }
+
+  /* ===================================================
+     Card Hover & Focus Effects
+     =================================================== */
+  .card-hover-pop {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .card-hover-pop:hover,
+  .card-hover-pop:focus-within {
+    transform: translateY(-5px) scale(var(--hover-scale));
+    box-shadow: 0 8px 20px var(--card-shadow);
+  }
+
+  /* Overlay Icons: Fade-in on Card Hover */
+  .product-overlay {
+    background-color: rgba(46, 125, 50, 0.8);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  .card-hover-pop:hover .product-overlay,
+  .card-hover-pop:focus-within .product-overlay {
+    opacity: 1;
+  }
+  .product-overlay ul li a {
+    transition: transform 0.2s ease;
+  }
+  .product-overlay ul li a:hover {
+    transform: scale(1.2);
+  }
+
+  /* ===================================================
+     Button Glow & Emphasis
+     =================================================== */
+  .btn-glow {
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+  }
+  .btn-glow:hover,
+  .btn-glow:focus {
+    box-shadow: 0 0 10px var(--accent-color);
+    transform: translateY(-2px);
+  }
+
+  /* ===================================================
+     Typography & Titles
+     =================================================== */
+  .shop-title {
+    color: var(--neutral-dark);
+    animation: fadeIn 1s ease-out both;
+  }
+  .shop-subtitle {
+    color: var(--primary-color);
+    font-weight: 500;
+    animation: fadeIn 1s 0.2s ease-out both;
+  }
+
+  /* ===================================================
+     Sidebar Accordion Icons
+     =================================================== */
+  .templatemo-accordion a.collapsed {
+    color: var(--neutral-dark);
+    transition: color 0.3s ease;
+  }
+  .templatemo-accordion a.collapsed:hover {
+    color: var(--accent-color);
+  }
+  .templatemo-accordion .fa-chevron-circle-down {
+    transition: transform 0.3s ease;
+  }
+  .templatemo-accordion a[aria-expanded="true"] .fa-chevron-circle-down {
+    transform: rotate(180deg);
+  }
+
+  /* ===================================================
+     Equal-Sized Card Images
+     =================================================== */
+  .product-wap .card-img {
+    height: 250px;           /* Fixed height for all images */
+    object-fit: cover;       /* Crop/scale uniformly */
+  }
+
+  /* ===================================================
+     Aligning Title / Rating / Price in Same “Row”
+     =================================================== */
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+  }
+  /* Force every title to occupy exactly two lines (approx. 3rem).
+     If the title is shorter, it still takes 3rem, ensuring ratings/prices sit at a consistent height. */
+  .product-title {
+    min-height: 3rem;
+    margin-bottom: 0.5rem;
+    font-size: 1.1rem;
+    line-height: 1.3rem;
+    color: var(--neutral-dark);
+    overflow: hidden;        /* Prevent overflow if the title is too long */
+  }
+
+  /* This container “pushes” itself to the bottom of .card-body, so every rating+price sits at the same baseline. */
+  .rating-price-container {
+    margin-top: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .rating-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.25rem 0;   /* Small gap below stars */
+    display: flex;
+    gap: 0.25rem;
+  }
+
+  /* ===================================================
+     Pagination Styling
+     =================================================== */
+  .pagination .page-link {
+    color: var(--neutral-dark);
+    border: 1px solid var(--border-color);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+  }
+  .pagination .page-item.active .page-link {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+    animation: fadeIn 0.5s ease-out both;
+  }
+  .pagination .page-link:hover {
+    background-color: var(--secondary-color);
+    color: #fff;
+    transform: translateY(-2px);
+  }
+
+  /* ===================================================
+     Brands Carousel Icons
+     =================================================== */
+  .brand-img {
+    filter: grayscale(50%);
+    transition: filter 0.3s ease, transform 0.3s ease;
+  }
+  .brand-img:hover {
+    filter: none;
+    transform: scale(1.1);
+  }
+  .carousel-control-prev, .carousel-control-next {
+    color: var(--primary-color);
+    transition: transform 0.3s ease;
+  }
+  .carousel-control-prev:hover, .carousel-control-next:hover {
+    transform: scale(1.2);
+  }
+
+  /* ===================================================
+     Miscellaneous Utility Classes
+     =================================================== */
+  .filter-applied {
+    font-size: 0.9rem;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+    animation: fadeIn 0.8s ease-out both;
+  }
+  .no-products {
+    color: var(--neutral-dark);
+    font-style: italic;
+    margin-top: 2rem;
+    text-align: center;
+    animation: fadeIn 1s ease-out both;
+  }
+    /* ===================================================
+   Remove glow on overlay buttons
+   =================================================== */
+.product-overlay .btn-glow:hover,
+.product-overlay .btn-glow:focus {
+  box-shadow: none !important;
+}
+
+</style>
+
+<div class="container py-5">
+  <div class="row">
+    <!-- Sidebar with Categories -->
+    <div class="col-lg-3 animate-fade-in">
+      <h1 class="h2 shop-title pb-4">Categories</h1>
+      <form method="get" action="">
+        <ul class="list-unstyled templatemo-accordion">
+          <li class="pb-3">
+            <a class="collapsed d-flex justify-content-between h3 text-decoration-none"
+               data-bs-toggle="collapse" href="#collapseGender" aria-expanded="false"
+               aria-controls="collapseGender">
+              Gender
+              <i class="fa fa-fw fa-chevron-circle-down mt-1"></i>
+            </a>
+            <ul id="collapseGender" class="collapse list-unstyled pl-3">
+              <li>
+                <input type="checkbox" id="gender_men" name="gender[]" value="men">
+                <label for="gender_men">Men</label>
+              </li>
+              <li>
+                <input type="checkbox" id="gender_women" name="gender[]" value="women">
+                <label for="gender_women">Women</label>
+              </li>
+            </ul>
+          </li>
+          <li class="pb-3">
+            <a class="collapsed d-flex justify-content-between h3 text-decoration-none"
+               data-bs-toggle="collapse" href="#collapseSale" aria-expanded="false"
+               aria-controls="collapseSale">
+              Sale
+              <i class="fa fa-fw fa-chevron-circle-down mt-1"></i>
+            </a>
+            <ul id="collapseSale" class="collapse list-unstyled pl-3">
+              <li>
+                <input type="checkbox" id="sale_dental_ent" name="sale[]" value="dental_ent">
+                <label for="sale_dental_ent">Dental and ENT Devices</label>
+              </li>
+              <li>
+                <input type="checkbox" id="sale_beauty" name="sale[]" value="beauty">
+                <label for="sale_beauty">Beauty Products</label>
+              </li>
+            </ul>
+          </li>
+          <li class="pb-3">
+            <a class="collapsed d-flex justify-content-between h3 text-decoration-none"
+               data-bs-toggle="collapse" href="#collapseProduct" aria-expanded="false"
+               aria-controls="collapseProduct">
+              Product
+              <i class="fa fa-fw fa-chevron-circle-down mt-1"></i>
+            </a>
+            <ul id="collapseProduct" class="collapse list-unstyled pl-3">
+              <li>
+                <input type="checkbox" id="product_beauty" name="product[]" value="beauty_products">
+                <label for="product_beauty">Beauty Products</label>
+              </li>
+              <li>
+                <input type="checkbox" id="product_jackets" name="product[]" value="jackets">
+                <label for="product_jackets">Jackets</label>
+              </li>
+              <li>
+                <input type="checkbox" id="product_dental_ent" name="product[]" value="dental_ent_devices">
+                <label for="product_dental_ent">Dental and ENT Devices</label>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <button type="submit" class="btn btn-primary btn-glow">Apply Filters</button>
+      </form>
+
+      {% if request.GET %}
+        <div class="filter-applied">
+          <strong>Filters applied:</strong>
+          {% for key, values in request.GET.lists %}
+            <br>{{ key|capfirst }}: {{ values|join:", " }}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Product Listing -->
+    <div class="col-lg-9">
+      <div class="row mb-4 animate-fade-in">
+        <div class="col-md-6">
+          <ul class="list-inline shop-top-menu pb-3 pt-1">
+            <li class="list-inline-item">
+              <a class="h3 text-dark text-decoration-none shop-subtitle mr-3" href="#">All</a>
+            </li>
+            <li class="list-inline-item">
+              <a class="h3 text-dark text-decoration-none shop-subtitle mr-3" href="#">Men's</a>
+            </li>
+            <li class="list-inline-item">
+              <a class="h3 text-dark text-decoration-none shop-subtitle" href="#">Women's</a>
+            </li>
+          </ul>
+        </div>
+        <div class="col-md-6 pb-4">
+          <div class="d-flex">
+            <select class="form-control">
+              <option>Featured</option>
+              <option>A to Z</option>
+              <option>Price: Low to High</option>
+              <option>Price: High to Low</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        {% for product in products %}
+          <div class="col-md-4 mb-4 animate-zoom-in">
+            <div class="card mb-0 product-wap rounded-0 h-100 card-hover-pop">
+              <!-- ====== Image Section (fixed height for all) ====== -->
+              <div class="card rounded-0 position-relative">
+                {% if product.image %}
+                  <img class="card-img rounded-0 img-fluid"
+                       src="{{ product.image.url }}"
+                       alt="{{ product.title }}">
+                {% else %}
+                  <img class="card-img rounded-0 img-fluid"
+                       src="{% static 'assets/img/default-product.jpg' %}"
+                       alt="{{ product.title }}">
+                {% endif %}
+                <div class="card-img-overlay rounded-0 product-overlay d-flex align-items-center justify-content-center">
+                  <ul class="list-unstyled text-center">
+                    <li class="mb-2">
+                      <a class="btn btn-success text-white btn-glow"
+                         href="{% url 'core:single_shop' product.p_id %}"
+                         aria-label="Add to wishlist">
+                        <i class="far fa-heart"></i>
+                      </a>
+                    </li>
+                    <li class="mb-2">
+                      <a class="btn btn-success text-white btn-glow"
+                         href="{% url 'core:single_shop' product.p_id %}"
+                         aria-label="View details">
+                        <i class="far fa-eye"></i>
+                      </a>
+                    </li>
+                    <li>
+                      <a class="btn btn-success text-white btn-glow"
+                         href="{% url 'core:single_shop' product.p_id %}"
+                         aria-label="Add to cart">
+                        <i class="fas fa-cart-plus"></i>
+                      </a>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+
+              <!-- ====== Card Body ====== -->
+              <div class="card-body d-flex flex-column">
+                <!-- Product Title (fixed-height container) -->
+                <div class="product-title">
+                  <a href="{% url 'core:single_shop' product.p_id %}"
+                     class="text-decoration-none text-dark">
+                    {{ product.title }}
+                  </a>
+                </div>
+
+                <!-- Rating & Price (pushed to bottom) -->
+                <div class="rating-price-container">
+                  <ul class="rating-list">
+                    {% for i in "12345"|make_list %}
+                      {% if forloop.counter <= product.average_rating %}
+                        <li><i class="text-warning fa fa-star"></i></li>
+                      {% else %}
+                        <li><i class="text-muted fa fa-star"></i></li>
+                      {% endif %}
+                    {% endfor %}
+                  </ul>
+                  <p class="text-center fw-bold mb-0" style="color: var(--neutral-dark);">
+                    Rs.{{ product.price }}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12">
+            <p class="no-products">
+              No products found. Our selection is as rare as a handwritten letter from yesteryear!
+            </p>
+          </div>
+        {% endfor %}
+      </div>
+
+      <!-- ====== Pagination (Django’s Built-In) ====== -->
+      {% if products.has_other_pages %}
+        <div class="row">
+          <div class="col-12">
+            <ul class="pagination pagination-lg justify-content-end">
+              {% if products.has_previous %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ products.previous_page_number }}">&laquo;</a>
+                </li>
+              {% endif %}
+              {% for num in products.paginator.page_range %}
+                {% if products.number == num %}
+                  <li class="page-item active">
+                    <a class="page-link" href="#">{{ num }}</a>
+                  </li>
+                {% else %}
+                  <li class="page-item">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                  </li>
+                {% endif %}
+              {% endfor %}
+              {% if products.has_next %}
+                <li class="page-item">
+                  <a class="page-link" href="?page={{ products.next_page_number }}">&raquo;</a>
+                </li>
+              {% endif %}
+            </ul>
+          </div>
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
+</div>
+
+<!-- ====== Start Brands Section ====== -->
+<section class="bg-light py-5 animate-fade-in">
+  <div class="container my-4">
+    <div class="row text-center py-3">
+      <div class="col-lg-6 m-auto">
+        <h1 class="h1 shop-title">Brands</h1>
+      </div>
+      <div class="col-lg-9 m-auto tempaltemo-carousel">
+        <div class="row d-flex flex-row">
+          <!-- Carousel Controls -->
+          <div class="col-1 align-self-center">
+            <a class="h1" href="#multi-item-example" role="button" data-bs-slide="prev">
+              <i class="text-light fas fa-chevron-left"></i>
+            </a>
+          </div>
+          <!-- Carousel Wrapper -->
+          <div class="col">
+            <div class="carousel slide carousel-multi-item pt-2 pt-md-0" id="multi-item-example" data-bs-ride="carousel">
+              <div class="carousel-inner product-links-wap" role="listbox">
+                <!-- First slide -->
+                <div class="carousel-item active">
+                  <div class="row">
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.1.png' %}" alt="Brand Logo 1">
+                      </a>
+                    </div>
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.2.png' %}" alt="Brand Logo 2">
+                      </a>
+                    </div>
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.3.png' %}" alt="Brand Logo 3">
+                      </a>
+                    </div>
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.4.png' %}" alt="Brand Logo 4">
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <!-- Second slide -->
+                <div class="carousel-item">
+                  <div class="row">
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.1.png' %}" alt="Brand Logo 5">
+                      </a>
+                    </div>
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.2.png' %}" alt="Brand Logo 6">
+                      </a>
+                    </div>
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.3.png' %}" alt="Brand Logo 7">
+                      </a>
+                    </div>
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.4.png' %}" alt="Brand Logo 8">
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                <!-- Third slide -->
+                <div class="carousel-item">
+                  <div class="row">
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.1.png' %}" alt="Brand Logo 9">
+                      </a>
+                    </div>
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.2.png' %}" alt="Brand Logo 10">
+                      </a>
+                    </div>
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.3.png' %}" alt="Brand Logo 11">
+                      </a>
+                    </div>
+                    <div class="col-3 p-md-5">
+                      <a href="#">
+                        <img class="img-fluid brand-img" src="{% static 'assets/img/0.4.png' %}" alt="Brand Logo 12">
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Carousel Controls -->
+          <div class="col-1 align-self-center">
+            <a class="h1" href="#multi-item-example" role="button" data-bs-slide="next">
+              <i class="text-light fas fa-chevron-right"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== Start Script ====== -->
+<script src="{% static 'assets/js/jquery-1.11.0.min.js' %}"></script>
+<script src="{% static 'assets/js/jquery-migrate-1.2.1.min.js' %}"></script>
+<script src="{% static 'assets/js/bootstrap.bundle.min.js' %}"></script>
+<script src="{% static 'assets/js/templatemo.js' %}"></script>
+<script src="{% static 'assets/js/custom.js' %}"></script>
+<!-- ====== End Script ====== -->
+
+{% endblock %}

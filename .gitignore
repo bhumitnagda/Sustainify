@@ -1,0 +1,16 @@
+.env
+.venv/
+.vscode/
+.idea/
+
+__pycache__/
+*.py[cod]
+
+debug.log
+/db.sqlite3
+
+/media/*
+!/media/category/
+!/media/product-images/
+
+/shop.html

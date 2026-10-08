@@ -1,0 +1,78 @@
+{% extends "partials/base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Customer Dashboard</h2>
+    <div class="row">
+        <!-- Sidebar Navigation -->
+        <div class="col-md-3">
+            <div class="list-group">
+                <a href="{% url 'core:customer_dashboard' %}" class="list-group-item list-group-item-action active">
+                    Overview
+                </a>
+                <a href="{% url 'core:customer_orders' %}" class="list-group-item list-group-item-action">
+                    Orders
+                </a>
+                <a href="{% url 'core:customer_account' %}" class="list-group-item list-group-item-action">
+                    Account Details
+                </a>
+                <a href="{% url 'core:customer_settings' %}" class="list-group-item list-group-item-action">
+                    Settings
+                </a>
+                <a href="{% url 'userauths:sign-out' %}" class="list-group-item list-group-item-action text-danger">
+                    Logout
+                </a>
+            </div>
+        </div>
+        <!-- Main Content Area -->
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    Dashboard Overview
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title">Welcome, {{ user.username }}!</h5>
+                    <p class="card-text">
+                        Here you can view your recent orders, update your account details, and manage your preferences.
+                        Our dashboard is as timeless as your favorite old vinyl record—classic and reliable.
+                    </p>
+                    <!-- Recent Orders Section -->
+                    <h6>Recent Orders</h6>
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Order ID</th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Time</th>
+                                <th scope="col">Status</th>
+                                <th scope="col">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td>{{ order.id }}</td>
+                                <!-- Using order_date from the CartOrder model -->
+                                <td>{{ order.order_date|date:"M d, Y" }}</td>
+                                <td>{{ order.order_date|date:"H:i" }}</td>
+                                <td>{{ order.product_status|capfirst }}</td>
+                                <td>Rs.{{ order.price }}</td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="text-center">
+                                    No recent orders. Time to make some new memories!
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <a href="{% url 'core:customer_orders' %}" class="btn btn-primary">
+                        View All Orders
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

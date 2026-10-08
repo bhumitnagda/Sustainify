@@ -1,0 +1,687 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  /* ===================================================
+     Variables & Animations
+     =================================================== */
+  :root {
+    --primary-color: #2E7D32; /* Dark Green */
+    --secondary-color: #81C784; /* Light Green */
+    --accent-color: #FF5722; /* Vibrant Orange for emphasis */
+    --neutral-light: #f7f7f7;
+    --neutral-dark: #424242;
+    --border-color: #bdbdbd;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .animate-fade-in {
+    animation: fadeIn 0.8s ease-out both;
+  }
+
+  /* ===================================================
+     General Layout & Updated Color Scheme
+     =================================================== */
+  .product-page {
+    background-color: var(--neutral-light);
+    padding: 2rem 0;
+    animation: fadeIn 1s ease-out both;
+  }
+  .product-image {
+    max-height: 500px;
+    object-fit: contain;
+    width: 100%;
+    transition: transform 0.3s ease;
+  }
+  .product-image:hover {
+    transform: scale(1.02);
+  }
+  .thumbnails .img-thumbnail {
+    cursor: pointer;
+    width: 80%;
+    object-fit: cover;
+    margin-bottom: 0.5rem;
+    transition: transform 0.3s ease;
+  }
+  .thumbnails .img-thumbnail:hover {
+    transform: scale(1.05);
+  }
+
+  /* Nav Tabs */
+  .nav-tabs .nav-link {
+    font-weight: 600;
+    margin-right: 10px;
+    color: var(--neutral-dark);
+    transition: background-color 0.3s ease;
+  }
+  .nav-tabs .nav-link.active {
+    background-color: #fff;
+    border-color: var(--border-color) var(--border-color) #fff;
+    color: var(--primary-color);
+  }
+
+  /* Dark Box for Price & Buttons (center column) */
+  .dark-box {
+    background-color: #e9ecef;
+    border: 1px solid var(--border-color);
+    color: var(--neutral-dark);
+    padding: 1rem;
+    margin-top: 1rem;
+    transition: box-shadow 0.3s ease;
+  }
+  .dark-box:hover {
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+
+  /* Earthy Styled Buttons */
+  .amazon-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  /* Updated Buy Now button: Older version styling */
+  .buy-btn {
+    background-color: #f0c14b;
+    color: #0f1111;
+    border: 1px solid #a88734;
+  }
+  .buy-btn:hover {
+    background-color: #e2b33c;
+    transform: translateY(-2px);
+  }
+  .cart-btn {
+    background-color: var(--primary-color);
+    color: #ffffff;
+    border: 1px solid var(--primary-color);
+    text-decoration: none !important;
+  }
+  .cart-btn:hover {
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+  }
+
+  /* Color Option Buttons */
+  .color-option {
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+  .color-option.active {
+    background-color: var(--primary-color);
+    color: #fff;
+    border-color: var(--primary-color);
+  }
+  .color-option:hover {
+    transform: scale(1.05);
+  }
+
+  /* Zoom Popup Styling */
+  #image-container {
+    position: relative;
+  }
+  #zoom-popup {
+    display: none;
+    position: absolute;
+    top: 0;
+    left: calc(100% + 20px);
+    width: 400px;
+    height: 400px;
+    border: 1px solid var(--border-color);
+    background: #fff;
+    overflow: hidden;
+    z-index: 10;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    transition: opacity 0.3s ease;
+  }
+  #zoom-popup img {
+    position: absolute;
+  }
+
+  /* ===================================================
+       Related Products Carousel
+     =================================================== */
+  .related-products {
+    background-color: #fff;
+    padding: 2rem 0;
+    margin-top: 3rem;
+  }
+  .carousel-container {
+    position: relative;
+    overflow: hidden;
+  }
+  .carousel {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding: 1rem 0;
+  }
+  .carousel::-webkit-scrollbar {
+    display: none;
+  }
+  .product-card {
+    flex: 0 0 auto;
+    width: 220px;
+    margin-right: 1rem;
+    border: 1px solid var(--border-color);
+    padding: 1rem;
+    background-color: #fafafa;
+    text-align: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  }
+  .product-card img {
+    max-height: 150px;
+    object-fit: contain;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  .product-card h6 {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: var(--neutral-dark);
+  }
+  .product-card p {
+    margin-bottom: 0.5rem;
+    font-weight: bold;
+    color: var(--primary-color);
+  }
+  .scroll-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(46, 125, 50, 0.8);
+    color: #fff;
+    border: none;
+    font-size: 1.5rem;
+    padding: 0 10px;
+    cursor: pointer;
+    z-index: 5;
+    transition: background-color 0.3s ease;
+  }
+  .scroll-btn.left {
+    left: 0;
+  }
+  .scroll-btn.right {
+    right: 0;
+  }
+  .scroll-btn:hover {
+    background-color: var(--primary-color);
+  }
+
+  /* ===================================================
+       Tag Styling
+     =================================================== */
+  .badge-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    max-width: 400px;
+  }
+  .tag-badge {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+    border-radius: 0.25rem;
+    white-space: nowrap;
+    background-color: var(--secondary-color);
+    color: var(--neutral-dark);
+  }
+</style>
+
+<div class="product-page animate-fade-in">
+  <div class="container">
+    <div class="row">
+      <!-- Left Column: Product Images & Thumbnails -->
+      <div class="col-lg-5">
+        <div id="image-container">
+          {% if product.image %}
+            <img id="main-image" class="product-image" src="{{ product.image.url }}" alt="{{ product.title }}">
+          {% else %}
+            <img id="main-image" class="product-image" src="{% static 'assets/img/default-product.jpg' %}" alt="{{ product.title }}">
+          {% endif %}
+          <!-- Zoom Popup -->
+          <div id="zoom-popup">
+            <img id="zoom-img" src="" alt="Zoomed Image">
+          </div>
+        </div>
+
+        <!-- Thumbnails -->
+        <div class="row mt-3 thumbnails">
+          <!-- Main image thumbnail -->
+          {% if product.image %}
+            <div class="col-4 text-center">
+              <img class="img-thumbnail" src="{{ product.image.url }}" alt="Thumbnail - main" onclick="changeMainImage('{{ product.image.url }}');">
+            </div>
+          {% else %}
+            <div class="col-4 text-center">
+              <img class="img-thumbnail" src="{% static 'assets/img/default-product.jpg' %}" alt="Thumbnail - main" onclick="changeMainImage('{% static 'assets/img/default-product.jpg' %}');">
+            </div>
+          {% endif %}
+          <!-- Additional images -->
+          {% for img in product.product_images_set.all %}
+            <div class="col-4 text-center">
+              <img class="img-thumbnail" src="{{ img.images.url }}" alt="Thumbnail {{ forloop.counter }}" onclick="changeMainImage('{{ img.images.url }}');">
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+      <!-- End Left Column -->
+
+      <!-- Middle Column: Product Info -->
+      <div class="col-lg-4">
+        <h2 class="mb-2">{{ product.title }}</h2>
+        <!-- Price -->
+        <div class="mb-3">
+          {% if product.old_price %}
+            <del class="me-2 text-muted">Rs {{ product.old_price }}</del>
+          {% endif %}
+          <span class="fw-bold text-danger" style="font-size:1.5rem;">Rs {{ product.price }}</span>
+          {% if product.old_price %}
+            <span class="badge bg-danger ms-2">{{ product.get_percentage }}% off</span>
+          {% endif %}
+        </div>
+
+        <!-- Ratings -->
+        <div class="mb-2">
+          {% for i in "12345"|make_list %}
+            {% if forloop.counter <= product.average_rating %}
+              <i class="fa fa-star text-warning"></i>
+            {% else %}
+              <i class="fa fa-star text-secondary"></i>
+            {% endif %}
+          {% endfor %}
+          <small class="text-muted ms-1">({{ product.product_reivew_set.count }} ratings)</small>
+        </div>
+
+        <!-- Brand Info -->
+        <p class="mb-3">
+          <strong>Brand:</strong>
+          {% if product.vendor %}
+            <span class="text-success">{{ product.vendor.title }}</span>
+          {% else %}
+            <span class="text-muted">Unknown</span>
+          {% endif %}
+        </p>
+
+        <!-- Tags -->
+        {% if product.tags.all %}
+          <p>
+            <strong>Tags:</strong>
+            <span class="badge-container">
+              {% for tag in product.tags.all %}
+                <a href="{% url 'core:tags' tag.slug %}" class="tag-badge">#{{ tag.name }}</a>
+              {% endfor %}
+            </span>
+          </p>
+        {% endif %}
+
+        <!-- Options: Color / Size / Pack -->
+        <div class="mb-3">
+          {% if product.category.title|lower == "shoes" %}
+            <h6>Shoe Size:
+              <a href="#" data-bs-toggle="modal" data-bs-target="#sizeChartModal" style="font-size:0.9rem; margin-left:0.5rem;">Size Chart</a>
+            </h6>
+            <select class="form-select w-auto" id="sizeSelect">
+              {% for size in shoe_sizes %}
+                <option value="{{ size }}">{{ size }}</option>
+              {% endfor %}
+            </select>
+          {% else %}
+            {% regroup product.options.all by option_type as grouped_options %}
+            {% for group in grouped_options %}
+              {% if group.grouper|lower == "color" %}
+                <h6>Color:</h6>
+                <div>
+                  {% for option in group.list %}
+                    {% ifchanged option.value %}
+                      <span class="btn btn-outline-secondary me-2 mb-2 color-option" data-color="{{ option.value }}">
+                        {{ option.value }}
+                      </span>
+                    {% endifchanged %}
+                  {% endfor %}
+                </div>
+              {% elif group.grouper|lower == "size" %}
+                <h6>
+                  Size:
+                  <a href="#" data-bs-toggle="modal" data-bs-target="#sizeChartModal" style="font-size:0.9rem; margin-left:0.5rem;">Size Chart</a>
+                </h6>
+                <select class="form-select w-auto" id="sizeSelect">
+                  {% for option in group.list %}
+                    {% ifchanged option.value %}
+                      <option value="{{ option.value }}">{{ option.value }}</option>
+                    {% endifchanged %}
+                  {% endfor %}
+                </select>
+              {% elif group.grouper|lower == "pack" %}
+                <h6>Pack:</h6>
+                <div>
+                  {% for option in group.list %}
+                    {% ifchanged option.value %}
+                      <span class="btn btn-success btn-size me-2 mb-2">{{ option.value }}</span>
+                    {% endifchanged %}
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <!-- Fallback Pack Options -->
+        {% if not product.options.all %}
+          <div class="mb-3">
+            <h6>Pack:</h6>
+            <div>
+              <span class="btn btn-success btn-size me-2 mb-2">2</span>
+              <span class="btn btn-success btn-size me-2 mb-2">3</span>
+              <span class="btn btn-success btn-size me-2 mb-2">6</span>
+              <span class="btn btn-success btn-size me-2 mb-2">8</span>
+              <span class="btn btn-success btn-size me-2 mb-2">10</span>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Stock & Actions -->
+        {% if product.in_stock %}
+          <p class="text-success fw-bold">In Stock</p>
+          <div class="d-flex align-items-center mb-3">
+            <label for="quantitySelect" class="me-2 fw-bold">Quantity:</label>
+            <select id="quantitySelect" class="form-select w-auto">
+              {% for i in quantities %}
+                <option value="{{ i }}">{{ i }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div>
+            <form action="{% url 'core:add_to_cart' product.p_id %}" method="get" class="d-inline">
+              <input type="hidden" id="cartQuantity" name="quantity" value="1">
+              <button type="submit" class="amazon-btn cart-btn">Add to Cart</button>
+            </form>
+            <form action="{% url 'core:add_to_cart' product.p_id %}" method="post" class="d-inline ms-2">
+              {% csrf_token %}
+              <input type="hidden" id="buyNowQuantity" name="quantity" value="1">
+              <button type="submit" class="amazon-btn buy-btn">Buy Now</button>
+            </form>
+          </div>
+        {% else %}
+          <p class="text-danger fw-bold">Out of Stock</p>
+        {% endif %}
+
+        <!-- Quick Highlights -->
+        <ul class="mt-3" style="list-style:none; padding-left:0;">
+          <li><i class="fa fa-check text-success me-1"></i>Free Delivery on orders over Rs.499</li>
+          <li><i class="fa fa-check text-success me-1"></i>10-Day Replacement</li>
+        </ul>
+      </div>
+      <!-- End Middle Column -->
+
+      <!-- Right Column: Vendor Info -->
+      <div class="col-lg-3">
+        <div class="border p-3 dark-box">
+          <h5>Vendor</h5>
+          {% if product.vendor %}
+            <p class="mb-1"><strong>{{ product.vendor.title }}</strong></p>
+            <p>
+              <strong>ID:</strong> {{ product.vendor.v_id }} <br>
+              <strong>Mail:</strong> {{ product.vendor.email }} <br>
+              <strong>Contact:</strong> {{ product.vendor.contact }}
+            </p>
+            <hr>
+            <p class="fw-bold mb-1">Ships From:</p>
+            <p>{{ product.vendor.address }}</p>
+            <hr>
+            <p class="fw-bold mb-1">Return and Warranty:</p>
+            <p>{{ product.vendor.warranty_period }}</p>
+          {% else %}
+            <p><em>Unknown Vendor</em></p>
+          {% endif %}
+        </div>
+      </div>
+      <!-- End Right Column -->
+    </div>
+    <!-- End Top Row -->
+
+    <!-- Tabs: Description, Specifications, Vendor, Reviews -->
+    <div class="row mt-5">
+      <div class="col-12">
+        <ul class="nav nav-tabs" id="productTabs" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="desc-tab" data-bs-toggle="tab" data-bs-target="#desc-tab-pane" type="button" role="tab" aria-controls="desc-tab-pane" aria-selected="true">
+              Description
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="specs-tab" data-bs-toggle="tab" data-bs-target="#specs-tab-pane" type="button" role="tab" aria-controls="specs-tab-pane" aria-selected="false">
+              Specifications
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="vendor-tab" data-bs-toggle="tab" data-bs-target="#vendor-tab-pane" type="button" role="tab" aria-controls="vendor-tab-pane" aria-selected="false">
+              Vendor
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="reviews-tab" data-bs-toggle="tab" data-bs-target="#reviews-tab-pane" type="button" role="tab" aria-controls="reviews-tab-pane" aria-selected="false">
+              Reviews ({{ product.product_reivew_set.count }})
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content border border-top-0 p-3" id="productTabsContent" style="background: #fff;">
+          <!-- Description Tab -->
+          <div class="tab-pane fade show active" id="desc-tab-pane" role="tabpanel" aria-labelledby="desc-tab" tabindex="0">
+            <h5>Description</h5>
+            <p style="white-space: pre-wrap;">{{ product.description }}</p>
+          </div>
+
+          <!-- Specifications Tab -->
+          <div class="tab-pane fade" id="specs-tab-pane" role="tabpanel" aria-labelledby="specs-tab" tabindex="0">
+            <h5>Specifications</h5>
+            <p style="white-space: pre-wrap;">{{ product.specifications }}</p>
+          </div>
+
+          <!-- Vendor Tab -->
+          <div class="tab-pane fade" id="vendor-tab-pane" role="tabpanel" aria-labelledby="vendor-tab" tabindex="0">
+            <h5>Vendor</h5>
+            {% if product.vendor %}
+              <p><strong>Vendor ID:</strong> {{ product.vendor.v_id }}</p>
+              <p><strong>Contact:</strong> {{ product.vendor.contact }}</p>
+              <p><strong>Email:</strong> {{ product.vendor.email }}</p>
+              <p><strong>Address:</strong> {{ product.vendor.address }}</p>
+              <p><strong>Description:</strong> {{ product.vendor.description }}</p>
+            {% else %}
+              <p>No vendor details available.</p>
+            {% endif %}
+          </div>
+
+          <!-- Reviews Tab -->
+          <div class="tab-pane fade" id="reviews-tab-pane" role="tabpanel" aria-labelledby="reviews-tab" tabindex="0">
+            <h5>Reviews</h5>
+            {% if product.product_reivew_set.count > 0 %}
+              {% for review in product.product_reivew_set.all %}
+                <p><strong>{{ review.user.username }}</strong> - {{ review.rating }} Stars</p>
+                <p>{{ review.review }}</p>
+                <hr>
+              {% endfor %}
+            {% else %}
+              <p>No reviews yet. Be the first to share your thoughts—like an old letter from a dear friend!</p>
+            {% endif %}
+
+            <!-- Add a Review Form -->
+            {% if user.is_authenticated %}
+              <hr>
+              <h5>Add a Review</h5>
+              <form method="POST" action="{% url 'core:product_review' product.p_id %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                  <label class="form-label"><strong>Your Rating:</strong></label>
+                  {{ form.rating }}
+                </div>
+                <div class="mb-3">
+                  <label for="id_review" class="form-label"><strong>Your Review:</strong></label>
+                  {{ form.review }}
+                </div>
+                <button type="submit" class="btn btn-primary">Submit Review</button>
+              </form>
+            {% else %}
+              <p>Please <a href="{% url 'login' %}">log in</a> to add a review.</p>
+            {% endif %}
+          </div>
+        </div>
+
+        <!-- Related Products Carousel -->
+        <div class="related-products">
+          <div class="container">
+            <h4 class="mb-4">Related Products</h4>
+            <div class="carousel-container">
+              <button class="scroll-btn left" onclick="scrollCarousel(-1)">&lsaquo;</button>
+              <div class="carousel" id="relatedCarousel">
+                {% for related_product in related_products %}
+                  <div class="product-card">
+                    <a href="{% url 'core:single_shop' related_product.p_id %}">
+                      {% if related_product.image %}
+                        <img src="{{ related_product.image.url }}" alt="{{ related_product.title }}">
+                      {% else %}
+                        <img src="{% static 'assets/img/default-product.jpg' %}" alt="{{ related_product.title }}">
+                      {% endif %}
+                      <h6>{{ related_product.title }}</h6>
+                      <p>Rs {{ related_product.price }}</p>
+                      {% if related_product.old_price %}
+                        <span class="badge bg-danger">{{ related_product.get_percentage }}% off</span>
+                      {% endif %}
+                    </a>
+                  </div>
+                {% empty %}
+                  <div class="col-12">
+                    <p>No related products found. Our selection is as rare as a handwritten note from yesteryear!</p>
+                  </div>
+                {% endfor %}
+              </div>
+              <button class="scroll-btn right" onclick="scrollCarousel(1)">&rsaquo;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Size Chart Modal -->
+<div class="modal fade" id="sizeChartModal" tabindex="-1" aria-labelledby="sizeChartModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable">
+    <div class="modal-content animate-fade-in">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="sizeChartModalLabel">Men's Footwear Size Chart</h5>
+        <button type="button" class="btn btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <p>We’ve crafted this chart to help you choose the right size—just like our grandparents used to do. Grab your foot measurement and compare!</p>
+        <p>Once you find your perfect UK fit, you can use the same size for all models. Our footwear is made with regular width.</p>
+        <p>If you’re torn between sizes, we recommend sizing up—no extra tricks, only good old common sense.</p>
+        <hr>
+        <table class="table table-bordered">
+          <thead>
+            <tr>
+              <th>UK size</th>
+              <th>EU size</th>
+              <th>Foot length (mm)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>6.5</td><td>40</td><td>250</td></tr>
+            <tr><td>7</td><td>41</td><td>254</td></tr>
+            <tr><td>8</td><td>42</td><td>260</td></tr>
+            <tr><td>9</td><td>43</td><td>271</td></tr>
+            <tr><td>9.5</td><td>44</td><td>275</td></tr>
+            <tr><td>10</td><td>45</td><td>280</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- Modal Footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    var img = document.getElementById("main-image");
+    var zoomPopup = document.getElementById("zoom-popup");
+    var zoomImg = document.getElementById("zoom-img");
+    var zoomFactor = 2;
+    var cmToPx = 37.8; // 1 cm ≈ 37.8 pixels
+
+    function updateZoom() {
+      zoomImg.src = img.src;
+      var desiredHeight = img.clientHeight + (2 * cmToPx);
+      var maxAllowedDimension = img.clientWidth + (5 * cmToPx);
+      var popupDimension = desiredHeight > maxAllowedDimension ? maxAllowedDimension : desiredHeight;
+      zoomPopup.style.width = popupDimension + "px";
+      zoomPopup.style.height = popupDimension + "px";
+      zoomImg.style.width = (img.clientWidth * zoomFactor) + "px";
+      zoomImg.style.height = (img.clientHeight * zoomFactor) + "px";
+    }
+
+    img.addEventListener("mouseenter", function() {
+      updateZoom();
+      zoomPopup.style.display = "block";
+    });
+
+    img.addEventListener("mouseleave", function() {
+      zoomPopup.style.display = "none";
+    });
+
+    img.addEventListener("mousemove", function(e) {
+      var rect = img.getBoundingClientRect();
+      var x = e.clientX - rect.left;
+      var y = e.clientY - rect.top;
+      var zoomX = -((x * zoomFactor) - (zoomPopup.offsetWidth / 2));
+      var zoomY = -((y * zoomFactor) - (zoomPopup.offsetHeight / 2));
+      zoomImg.style.left = zoomX + "px";
+      zoomImg.style.top = zoomY + "px";
+    });
+
+    window.changeMainImage = function(newSrc) {
+      img.src = newSrc;
+      setTimeout(updateZoom, 300);
+    };
+
+    window.addEventListener("resize", updateZoom);
+
+    // Quantity dropdown synchronization
+    var quantitySelect = document.getElementById('quantitySelect');
+    var cartQuantity = document.getElementById('cartQuantity');
+    var buyNowQuantity = document.getElementById('buyNowQuantity');
+    quantitySelect.addEventListener('change', function() {
+      cartQuantity.value = this.value;
+      buyNowQuantity.value = this.value;
+    });
+    cartQuantity.value = quantitySelect.value;
+    buyNowQuantity.value = quantitySelect.value;
+  })();
+
+  // Carousel scrolling function
+  function scrollCarousel(direction) {
+    const carousel = document.getElementById('relatedCarousel');
+    const scrollAmount = direction * 300;
+    carousel.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  }
+</script>
+
+{% endblock %}

@@ -1,0 +1,120 @@
+{% extends "partials/base.html" %}
+
+{% block extra_css %}
+<!-- Page-specific CSS can go here if needed -->
+{% endblock extra_css %}
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Checkout</h1>
+    <div class="row">
+        <!-- Billing and Payment Form -->
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-light">
+                    Billing Details
+                </div>
+                <div class="card-body">
+                    <!-- Form now posts to the same URL; update action if you create a dedicated processing view -->
+                    <form method="post" action="{% url 'core:checkout' %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="fullName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="fullName" name="full_name" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="name@example.com" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <input type="text" class="form-control" id="address" name="address" placeholder="1234 Main St" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="city" class="form-label">City</label>
+                            <input type="text" class="form-control" id="city" name="city" required>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="state" class="form-label">State</label>
+                                <input type="text" class="form-control" id="state" name="state" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="zip" class="form-label">Zip</label>
+                                <input type="text" class="form-control" id="zip" name="zip" required>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone Number</label>
+                            <input type="text" class="form-control" id="phone" name="phone" required>
+                        </div>
+                        <h5 class="mb-3">Payment Method</h5>
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="radio" name="payment_method" id="cod" value="cod" checked>
+                            <label class="form-check-label" for="cod">
+                                Cash on Delivery
+                            </label>
+                        </div>
+                        <div class="form-check mb-3">
+                            <input class="form-check-input" type="radio" name="payment_method" id="stripe" value="stripe">
+                            <label class="form-check-label" for="stripe">
+                                Pay with Stripe
+                            </label>
+                        </div>
+<!--                        <div class="form-check mb-3">-->
+<!--                            <input class="form-check-input" type="radio" name="payment_method" id="paypal" value="paypal">-->
+<!--                            <label class="form-check-label" for="paypal">-->
+<!--                                Pay with Paypal-->
+<!--                            </label>-->
+<!--                        </div>-->
+                        <button type="submit" class="btn btn-success">Place Order</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Summary -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-secondary text-light">
+                    Order Summary
+                </div>
+                <div class="card-body">
+                    {% if cart_items %}
+                    <ul class="list-group mb-3">
+                        {% for item in cart_items %}
+                        <li class="list-group-item d-flex justify-content-between lh-sm">
+                            <div>
+                                <h6 class="my-0">{{ item.product.title }}</h6>
+                                <small class="text-muted">Quantity: {{ item.quantity }}</small>
+                            </div>
+                            <span class="text-muted">Rs.{{ item.total_price }}</span>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="d-flex justify-content-between">
+                        <span>Subtotal</span>
+                        <strong>Rs.{{ cart_subtotal }}</strong>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Shipping</span>
+                        <strong>Rs.{{ shipping_cost }}</strong>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span>Total</span>
+                        <strong>Rs.{{ cart_total }}</strong>
+                    </div>
+                    {% else %}
+                    <p>Your cart is empty.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}
+
+{% block extra_js %}
+<!-- Page-specific JavaScript can go here if needed -->
+{% endblock extra_js %}

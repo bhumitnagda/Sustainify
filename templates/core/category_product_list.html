@@ -1,0 +1,67 @@
+{% extends "partials/base.html" %}
+{% load static %}
+
+{% block content %}
+<style>
+  .card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    animation: fadeInUp 0.7s ease both;
+  }
+
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .card-title {
+    font-family: 'Georgia', serif;
+    font-weight: bold;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .btn-primary {
+    transition: background-color 0.3s ease, transform 0.3s ease;
+  }
+
+  .btn-primary:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+  }
+</style>
+
+<div class="container mt-4">
+  <h1 class="mb-4 text-center display-5">Products in {{ category.title }}</h1>
+  <div class="row">
+    {% for product in products %}
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}" style="height: 200px; object-fit: cover;">
+          {% else %}
+            <img src="{% static 'assets/img/default-product.jpg' %}" class="card-img-top" alt="{{ product.title }}" style="height: 200px; object-fit: cover;">
+          {% endif %}
+          <div class="card-body">
+            <h5 class="card-title">{{ product.title }}</h5>
+            <p class="card-text">Price: Rs.{{ product.price }}</p>
+            <a href="{% url 'core:single_shop' product.p_id %}" class="btn btn-success">View Details</a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12">
+        <p class="text-center">No products found in this category.</p>
+      </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

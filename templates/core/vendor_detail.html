@@ -1,0 +1,33 @@
+{% extends 'partials/base.html' %}
+{% load static %}
+
+{% block content %}
+  <div class="container mt-4">
+    <h1>{{ Vendor.title }}</h1>
+    <p>{{ Vendor.description }}</p>
+    <hr>
+    <h2>Products Sold by {{ Vendor.title }}</h2>
+    <div class="row">
+      {% for product in Products %}
+        <div class="col-md-3 mb-4">
+          <div class="card h-100">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.title }}" style="height: 200px; object-fit: cover;">
+            {% else %}
+              <img src="{% static 'assets/img/default-product.jpg' %}" class="card-img-top" alt="{{ product.title }}" style="height: 200px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title">{{ product.title }}</h5>
+              <p class="card-text">Rs.{{ product.price }}</p>
+              <a href="{% url 'core:single_shop' product.p_id %}" class="btn btn-primary mt-auto">View Details</a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12">
+          <p class="text-center">No products available for this vendor yet.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock %}

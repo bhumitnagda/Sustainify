@@ -123,3 +123,14 @@ python manage.py test userauths
 ## Data and version control
 
 The local SQLite database (`db.sqlite3`), `.env`, log files, Python cache files, and machine-specific IDE settings are excluded by `.gitignore`. A fresh checkout creates its database by running `python manage.py migrate`; it does not include local users or orders. Uploaded user/vendor media is also ignored, so configure persistent media storage separately for a deployed application.
+
+## Contributors
+
+- Bhumit Nagda
+- Taher Saterdawala
+- Eshant Palkar
+- Gautham Seshapalli
+
+## License
+
+This project is licensed under the MIT License.
